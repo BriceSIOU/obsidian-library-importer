@@ -53,6 +53,20 @@ def update_state(path=None, status=None):
         return state
 
 
+def prune_state():
+    """Oublie les fichiers qui n'existent plus (supprimés, déplacés dans le vault…)."""
+    STATE.touch()
+    with open(STATE, "r+") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        txt = f.read()
+        state = json.loads(txt) if txt.strip() else {}
+        kept = {k: v for k, v in state.items() if Path(k).exists()}
+        if len(kept) != len(state):
+            f.seek(0)
+            f.truncate()
+            json.dump(kept, f, indent=1, ensure_ascii=False)
+
+
 def already_seen(state, p):
     entry = state.get(str(p))
     if entry is None:
@@ -98,6 +112,7 @@ def cmd_init():
 
 
 def cmd_scan():
+    prune_state()
     state = update_state()
     for p in candidates():
         if already_seen(state, p):
@@ -325,8 +340,6 @@ tags: mediaDB/book
     fname.write_text(body)
     add_category_section(category)
     update_state(path, "added")
-    if move:
-        update_state(dest, "added")
 
     print(f"\n✅ Ajouté : {fname.name}  →  section {category}")
     subprocess.run(["notify-send", "📚 Bibliothèque", f"{title} ajouté ({category})"])

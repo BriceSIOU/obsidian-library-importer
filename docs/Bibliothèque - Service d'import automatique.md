@@ -93,6 +93,7 @@ sequenceDiagram
     FS-->>P: événement inotify (fichier créé/renommé)
     P->>S: démarre le service
     S->>SC: python3 library_importer.py scan
+    SC->>SC: oublie les fichiers disparus (state.json)
     SC->>SC: déjà vu ? (state.json : chemin + date de modif)
     SC->>SC: attend que la taille soit stable (2 s)
     SC->>V: même contenu (SHA-256) déjà dans 99 - Assets ?
@@ -123,6 +124,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
+    Z["Début du scan :<br/>retirer de state.json les fichiers disparus"] --> A
     A["Fichier dans ~/Downloads ou ~/Documents<br/>(pas les sous-dossiers)"] --> B{"Extension<br/>.pdf ou .epub ?"}
     B -- non --> X1["Ignoré"]
     B -- oui --> C{"Dans state.json avec<br/>la même date de modif ?"}
@@ -239,6 +241,8 @@ flowchart TD
 | `duplicate` | Contenu identique à un livre déjà présent. |
 
 Un fichier est considéré comme **déjà vu** seulement si son chemin **et** sa date de modification (`mtime`) correspondent. Un fichier supprimé puis retéléchargé sous le même nom a une nouvelle date : il est donc reproposé.
+
+Au début de chaque `scan`, le script **oublie les fichiers qui n'existent plus** (supprimés, ou déplacés dans le vault) : `state.json` ne contient donc que des fichiers réellement présents.
 
 ### 6.2 Détection des doublons
 - On compare l'empreinte **SHA-256** du fichier avec celle des `.pdf`/`.epub` de `99 - Assets`.
@@ -358,3 +362,4 @@ Ne sont **pas** dans le dépôt : les PDF, les fiches de livres et `state.json`.
 | 2026-10-08 | Correctif : catégories en double (guillemets) dans le questionnaire |
 | 2026-10-08 | Création de ce document |
 | 2026-10-08 | Dépôt Git `~/Code/obsidian-library-importer` avec `install.sh` et `sync.sh` |
+| 2026-10-08 | `state.json` : nettoyage automatique des fichiers disparus (plus d'entrées fantômes) |
