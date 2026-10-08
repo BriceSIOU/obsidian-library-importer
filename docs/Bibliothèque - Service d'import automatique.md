@@ -311,6 +311,18 @@ journalctl --user -u library-importer.service -n 20
 
 **Marquer un livre comme lu** : dans la fiche, mettre `read: true` et `personalRating: 8`.
 
+### Sauvegarde Git
+
+Le service est sauvegardé dans le dépôt `~/Code/obsidian-library-importer` (destiné à GitHub, sous le compte BriceSIOU).
+
+| Fichier du dépôt | Rôle |
+|---|---|
+| `install.sh` | Réinstalle tout sur une nouvelle machine : script, unités systemd, CSS et vue (sans écraser une vue existante). |
+| `sync.sh "message"` | Recopie la version installée dans le dépôt, puis fait le commit et le push. |
+| `.gitignore` | Exclut `state.json`, qui contient les noms de tes fichiers perso. |
+
+Ne sont **pas** dans le dépôt : les PDF, les fiches de livres et `state.json`.
+
 ---
 
 ## 8. Dépannage
@@ -345,3 +357,4 @@ journalctl --user -u library-importer.service -n 20
 | 2026-10-08 | Détection des doublons par SHA-256 + notification |
 | 2026-10-08 | Correctif : catégories en double (guillemets) dans le questionnaire |
 | 2026-10-08 | Création de ce document |
+| 2026-10-08 | Dépôt Git `~/Code/obsidian-library-importer` avec `install.sh` et `sync.sh` |
