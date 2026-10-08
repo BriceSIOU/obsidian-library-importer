@@ -18,6 +18,11 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+try:  # module local facultatif (non versionné), voir cmd_add
+    import paper_importer as extension
+except ImportError:
+    extension = None
+
 HOME = Path.home()
 WATCHED = [HOME / "Downloads", HOME / "Documents"]
 EXTS = {".pdf", ".epub"}
@@ -87,7 +92,7 @@ def sha256(path):
 def find_duplicate(p):
     """Renvoie le nom de la fiche si ce fichier (même contenu) est déjà dans 99 - Assets."""
     size = p.stat().st_size
-    for a in ASSETS.iterdir():
+    for a in ASSETS.rglob("*"):
         # on ne hache que les fichiers de même taille : rapide même avec beaucoup de livres
         if a.is_file() and a.suffix.lower() in EXTS and a.stat().st_size == size and sha256(a) == sha256(p):
             for note in LIBRARY.glob("*.md"):
@@ -243,6 +248,9 @@ def cmd_add(path):
     dup = find_duplicate(path)
     if dup and not yes(f"⚠️  Ce fichier est déjà dans ta bibliothèque (« {dup} »). L'ajouter quand même ?"):
         update_state(path, "duplicate")
+        return
+    # extension optionnelle : un module local peut prendre en charge d'autres types de documents
+    if extension and extension.maybe_handle(path, info, sys.modules[__name__]):
         return
     if not yes("Est-ce un livre à ajouter à ta bibliothèque ?"):
         update_state(path, "ignored")

@@ -215,6 +215,7 @@ flowchart TD
 | `~/.config/systemd/user/library-importer.service` | `Type=oneshot`, lance `python3 …/library_importer.py scan`. |
 | `~/.local/share/library-importer/library_importer.py` | Le script (modes `scan`, `add`, `init`). |
 | `~/.local/share/library-importer/state.json` | Mémoire des fichiers déjà traités. |
+| `~/.local/share/library-importer/paper_importer.py` *(facultatif, non versionné)* | Extension locale : si elle est présente, `cmd_add` lui passe d'abord le fichier (`extension.maybe_handle`). Si elle le prend en charge, le questionnaire livre est sauté. Voir [[Articles scientifiques - Service d'import automatique]]. |
 | `02 - Education/Library/<Titre> (<année>).md` | Une fiche par livre. |
 | `02 - Education/Library_view.md` | La galerie : une section et un tableau Dataview par catégorie. |
 | `99 - Assets/<Titre>.pdf` | Copie du livre. |
@@ -245,7 +246,7 @@ Un fichier est considéré comme **déjà vu** seulement si son chemin **et** sa
 Au début de chaque `scan`, le script **oublie les fichiers qui n'existent plus** (supprimés, ou déplacés dans le vault) : `state.json` ne contient donc que des fichiers réellement présents.
 
 ### 6.2 Détection des doublons
-- On compare l'empreinte **SHA-256** du fichier avec celle des `.pdf`/`.epub` de `99 - Assets`.
+- On compare l'empreinte **SHA-256** du fichier avec celle des `.pdf`/`.epub` de `99 - Assets` **et de ses sous-dossiers**.
 - Seuls les fichiers **de même taille** sont hachés, ce qui rend la vérification quasi instantanée.
 - La détection ne marche que si les fichiers sont identiques à l'octet près : une autre édition ou un autre scan n'est pas reconnu.
 
@@ -363,3 +364,4 @@ Ne sont **pas** dans le dépôt : les PDF, les fiches de livres et `state.json`.
 | 2026-10-08 | Création de ce document |
 | 2026-10-08 | Dépôt Git `~/Code/obsidian-library-importer` avec `install.sh` et `sync.sh` |
 | 2026-10-08 | `state.json` : nettoyage automatique des fichiers disparus (plus d'entrées fantômes) |
+| 2026-10-08 | Crochet d'extension locale facultative dans `cmd_add` ; doublons recherchés aussi dans les sous-dossiers de `99 - Assets` |
