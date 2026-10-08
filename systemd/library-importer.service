@@ -1,0 +1,6 @@
+[Unit]
+Description=Propose d'ajouter les nouveaux livres à la bibliothèque Obsidian
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/.local/share/library-importer/library_importer.py scan

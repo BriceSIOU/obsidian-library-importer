@@ -1,0 +1,9 @@
+[Unit]
+Description=Surveille Downloads et Documents pour les nouveaux livres
+
+[Path]
+PathChanged=%h/Downloads
+PathChanged=%h/Documents
+
+[Install]
+WantedBy=default.target
