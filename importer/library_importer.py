@@ -253,6 +253,9 @@ def cmd_add(path):
     if extension and extension.maybe_handle(path, info, sys.modules[__name__]):
         return
     if not yes("Est-ce un livre à ajouter à ta bibliothèque ?"):
+        # pas un livre : l'extension peut proposer son propre type (ex. article sans identifiant détecté)
+        if extension and hasattr(extension, "offer") and extension.offer(path, info, sys.modules[__name__]):
+            return
         update_state(path, "ignored")
         print("OK, ignoré. Je ne te le redemanderai pas.")
         return

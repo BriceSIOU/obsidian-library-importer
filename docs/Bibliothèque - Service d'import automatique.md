@@ -4,7 +4,7 @@ tags:
   - obsidian
   - systemd
   - bibliotheque
-updated: 2026-10-08
+updated: 2026-10-10
 ---
 # 📚 Bibliothèque : service d'import automatique
 
@@ -134,7 +134,9 @@ flowchart TD
     E -- oui --> F["status = duplicate<br/>🔔 notification"]
     E -- non --> G["status = pending<br/>ouvre kitty → questionnaire"]
     G --> H{"Est-ce un livre ?"}
-    H -- non --> I["status = ignored"]
+    H -- non --> H2{"Extension présente :<br/>Est-ce un article ?"}
+    H2 -- non --> I["status = ignored"]
+    H2 -- oui --> H3["Questionnaire article<br/>status = added"]
     H -- oui --> J["Fiche + PDF + couverture<br/>status = added"]
     G -. "Ctrl+C" .-> K["status = skipped"]
 ```
@@ -215,7 +217,7 @@ flowchart TD
 | `~/.config/systemd/user/library-importer.service` | `Type=oneshot`, lance `python3 …/library_importer.py scan`. |
 | `~/.local/share/library-importer/library_importer.py` | Le script (modes `scan`, `add`, `init`). |
 | `~/.local/share/library-importer/state.json` | Mémoire des fichiers déjà traités. |
-| `~/.local/share/library-importer/paper_importer.py` *(facultatif, non versionné)* | Extension locale : si elle est présente, `cmd_add` lui passe d'abord le fichier (`extension.maybe_handle`). Si elle le prend en charge, le questionnaire livre est sauté. Voir [[Articles scientifiques - Service d'import automatique]]. |
+| `~/.local/share/library-importer/paper_importer.py` *(facultatif, non versionné)* | Extension locale : si elle est présente, `cmd_add` lui passe d'abord le fichier (`extension.maybe_handle`). Si elle le prend en charge, le questionnaire livre est sauté. Si tu réponds « non » au livre, `cmd_add` appelle aussi `extension.offer` (s'il existe) avant de marquer le fichier `ignored`. Voir [[Articles scientifiques - Service d'import automatique]]. |
 | `02 - Education/Library/<Titre> (<année>).md` | Une fiche par livre. |
 | `02 - Education/Library_view.md` | La galerie : une section et un tableau Dataview par catégorie. |
 | `99 - Assets/<Titre>.pdf` | Copie du livre. |
@@ -237,7 +239,7 @@ flowchart TD
 | `existing` | Déjà présent lors de l'installation (`init`), jamais proposé. |
 | `pending` | Fenêtre ouverte, ou fermée sans répondre. |
 | `added` | Ajouté à la bibliothèque. |
-| `ignored` | Tu as répondu « non, ce n'est pas un livre ». |
+| `ignored` | Tu as répondu « non, ce n'est pas un livre » (et « non » à l'article si le module articles est installé). |
 | `skipped` | Annulé avec Ctrl+C. |
 | `duplicate` | Contenu identique à un livre déjà présent. |
 
@@ -365,3 +367,4 @@ Ne sont **pas** dans le dépôt : les PDF, les fiches de livres et `state.json`.
 | 2026-10-08 | Dépôt Git `~/Code/obsidian-library-importer` avec `install.sh` et `sync.sh` |
 | 2026-10-08 | `state.json` : nettoyage automatique des fichiers disparus (plus d'entrées fantômes) |
 | 2026-10-08 | Crochet d'extension locale facultative dans `cmd_add` ; doublons recherchés aussi dans les sous-dossiers de `99 - Assets` |
+| 2026-10-10 | 2e crochet facultatif `extension.offer` après « non, pas un livre » (utilisé par le module articles pour « Est-ce un article ? ») |
